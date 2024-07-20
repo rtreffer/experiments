@@ -122,7 +122,7 @@ func latencyReport(data []time.Duration) {
 			right = right + " "
 		}
 		prefix := fmt.Sprintf("%s -> %s:", left, right)
-		for j := len(prefix); j < 20; j++ {
+		for j := len(prefix); j < 25; j++ {
 			prefix += " "
 		}
 		prefix = fmt.Sprintf("%s (%7d)", prefix, count)
