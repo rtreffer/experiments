@@ -69,6 +69,7 @@ func latencyReport(data []time.Duration) {
 	fmt.Printf("latency report (%d entries): min=%s p50=%s p90=%s p99=%s p999=%s max=%s avg=%s stddev=%s\n",
 		len(latencies), min, p50, p90, p99, p999, max, avg, stddev)
 
+	// 2^32 nanoseconds ~ 4 seconds
 	buckets := make([]int, 32)
 	bucketBoundary := time.Duration(1)
 	index := 0
@@ -94,6 +95,7 @@ func latencyReport(data []time.Duration) {
 	}
 
 	output := false
+	buf := ""
 	for i, count := range buckets {
 		if count == 0 && !output {
 			continue
@@ -125,7 +127,15 @@ func latencyReport(data []time.Duration) {
 			right = right + " "
 		}
 		prefix := fmt.Sprintf("%s -> %s (%7d)", left, right, count)
-		fmt.Println(prefix, starsStr)
+		if count == 0 {
+			buf += fmt.Sprintf("%s %s\n", prefix, starsStr)
+			continue
+		}
+		if buf != "" {
+			fmt.Print(buf)
+			buf = ""
+		}
+		fmt.Printf("%s %s\n", prefix, starsStr)
 	}
 }
 
