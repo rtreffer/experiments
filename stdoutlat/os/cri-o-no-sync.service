@@ -1,0 +1,11 @@
+[Unit]
+Description=CRI-O Container Runtime
+Documentation=
+
+[Service]
+ExecStart=/usr/local/bin/crio --config /etc/crio/crio.conf --no-sync-log=true
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stdoutlat
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: stdoutlat
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: ["-c", "git clone https://github.com/rtreffer/experiments.git ; cd experiments ; go run stdoutlat/cmd/main.go --frequency 10 --history.length 10000 --latency.interval 60"]
+    resources:
+      requests:
+        cpu: "1.0"
+        memory: "64Mi"
+      limits: {}
+  - name: sleep1
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep 1; date +%s" ]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep2
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep 2; date +%s" ]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep3
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep 3; date +%s" ]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep4
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep 4; date +%s" ]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep5
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep 5; date +%s" ]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "1Mi"
+      limits: {}

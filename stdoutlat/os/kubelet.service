@@ -1,0 +1,18 @@
+[Unit]
+Description=Kubernetes Kubelet (standalone)
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/local/kubernetes/server/bin/kubelet \
+  --cgroup-driver=systemd \
+  --healthz-bind-address=0.0.0.0 \
+  --pod-manifest-path=/etc/kubernetes/pods \
+  --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
+  --make-iptables-util-chains=false \
+  --pod-cidr=10.85.0.0/24 \
+  --v=2
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
