@@ -93,10 +93,12 @@ func latencyReport(data []time.Duration) {
 		}
 	}
 
+	output := false
 	for i, count := range buckets {
-		if count == 0 {
+		if count == 0 && !output {
 			continue
 		}
+		output = true
 		bucketEnd := time.Duration(1)
 		for j := 0; j < i; j++ {
 			bucketEnd += time.Duration(1)
