@@ -11,6 +11,7 @@ import (
 	"sort"
 	"syscall"
 	"time"
+	"unicode/utf8"
 )
 
 var latencies []time.Duration
@@ -115,17 +116,13 @@ func latencyReport(data []time.Duration) {
 		starsStr += "|"
 		left := roundLatency(bucketStart).String()
 		right := roundLatency(bucketEnd).String()
-		for len(left) < 10 {
+		for utf8.RuneCountInString(left) < 9 {
 			left = " " + left
 		}
-		for len(right) < 10 {
+		for utf8.RuneCountInString(right) < 9 {
 			right = right + " "
 		}
-		prefix := fmt.Sprintf("%s -> %s:", left, right)
-		for j := len(prefix); j < 25; j++ {
-			prefix += " "
-		}
-		prefix = fmt.Sprintf("%s (%7d)", prefix, count)
+		prefix := fmt.Sprintf("%s -> %s (%7d)", left, right, count)
 		fmt.Println(prefix, starsStr)
 	}
 }
