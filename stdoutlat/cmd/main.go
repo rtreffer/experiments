@@ -59,7 +59,7 @@ func latencyReport(data []time.Duration) {
 	avg := sum / time.Duration(len(latencies))
 	var variance time.Duration
 	for _, d := range latencies {
-		diff := d - sum/time.Duration(len(latencies))
+		diff := d - avg
 		variance += diff * diff
 	}
 	stddev := time.Duration(0)
