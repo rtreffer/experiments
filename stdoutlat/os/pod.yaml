@@ -27,7 +27,7 @@ spec:
       limits: {}
   - name: sleep2
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 20)); date +%s" ]
     resources:
       requests:
@@ -36,7 +36,7 @@ spec:
       limits: {}
   - name: sleep3
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 30)); date +%s" ]
     resources:
       requests:
@@ -45,7 +45,7 @@ spec:
       limits: {}
   - name: sleep4
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 40)); date +%s" ]
     resources:
       requests:
@@ -54,7 +54,7 @@ spec:
       limits: {}
   - name: sleep5
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 50)); date +%s" ]
     resources:
       requests:
@@ -63,7 +63,7 @@ spec:
       limits: {}
   - name: sleep6
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 60)); date +%s" ]
     resources:
       requests:
@@ -72,7 +72,7 @@ spec:
       limits: {}
   - name: sleep7
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 70)); date +%s" ]
     resources:
       requests:
@@ -81,7 +81,7 @@ spec:
       limits: {}
   - name: sleep8
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 80)); date +%s" ]
     resources:
       requests:
@@ -90,7 +90,7 @@ spec:
       limits: {}
   - name: sleep9
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 90)); date +%s" ]
     resources:
       requests:
@@ -99,7 +99,7 @@ spec:
       limits: {}
   - name: sleep10
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
+    command: [ "/bin/bash" ]
     args: [ "-c", "date +%s; sleep $((RANDOM % 100)); date +%s" ]
     resources:
       requests:
