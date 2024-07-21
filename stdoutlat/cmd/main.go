@@ -96,6 +96,7 @@ func latencyReport(data []time.Duration) {
 
 	output := false
 	buf := ""
+	maxStars := 50
 	for i, count := range buckets {
 		if count == 0 && !output {
 			continue
@@ -108,9 +109,9 @@ func latencyReport(data []time.Duration) {
 			bucketEnd -= time.Duration(1)
 		}
 		bucketStart := (bucketEnd + time.Duration(1)) / 2
-		stars := int(math.Round(float64(count) / float64(maxCount) * 30))
+		stars := int(float64(count) / float64(maxCount+1) * float64(1+maxStars))
 		starsStr := "|"
-		for j := 0; j < 30; j++ {
+		for j := 0; j < maxStars; j++ {
 			if j < stars {
 				starsStr += "*"
 			} else {
