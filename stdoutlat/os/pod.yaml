@@ -3,13 +3,14 @@ kind: Pod
 metadata:
   name: stdoutlat
 spec:
+  restartPolicy: Always
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
   containers:
   - name: stdoutlat
     image: golang:1-bookworm
     command: [ "/bin/sh" ]
-    args: ["-c", "git clone https://github.com/rtreffer/experiments.git ; cd experiments ; go run stdoutlat/cmd/main.go --frequency 10 --history.length 10000 --latency.interval 60"]
+    args: ["-c", "git clone https://github.com/rtreffer/experiments.git ; cd experiments ; go run stdoutlat/cmd/main.go --frequency 50 --history.length 50000 --latency.interval 10"]
     resources:
       requests:
         cpu: "1.0"
@@ -17,46 +18,91 @@ spec:
       limits: {}
   - name: sleep1
     image: golang:1-bookworm
-    command: [ "/bin/sh" ]
-    args: [ "-c", "date +%s; sleep 1; date +%s" ]
+    command: [ "/bin/bash" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 10)); date +%s" ]
     resources:
       requests:
-        cpu: "0.1"
+        cpu: "0.01"
         memory: "1Mi"
       limits: {}
   - name: sleep2
     image: golang:1-bookworm
     command: [ "/bin/sh" ]
-    args: [ "-c", "date +%s; sleep 2; date +%s" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 20)); date +%s" ]
     resources:
       requests:
-        cpu: "0.1"
+        cpu: "0.01"
         memory: "1Mi"
       limits: {}
   - name: sleep3
     image: golang:1-bookworm
     command: [ "/bin/sh" ]
-    args: [ "-c", "date +%s; sleep 3; date +%s" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 30)); date +%s" ]
     resources:
       requests:
-        cpu: "0.1"
+        cpu: "0.01"
         memory: "1Mi"
       limits: {}
   - name: sleep4
     image: golang:1-bookworm
     command: [ "/bin/sh" ]
-    args: [ "-c", "date +%s; sleep 4; date +%s" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 40)); date +%s" ]
     resources:
       requests:
-        cpu: "0.1"
+        cpu: "0.01"
         memory: "1Mi"
       limits: {}
   - name: sleep5
     image: golang:1-bookworm
     command: [ "/bin/sh" ]
-    args: [ "-c", "date +%s; sleep 5; date +%s" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 50)); date +%s" ]
     resources:
       requests:
-        cpu: "0.1"
+        cpu: "0.01"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep6
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 60)); date +%s" ]
+    resources:
+      requests:
+        cpu: "0.01"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep7
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 70)); date +%s" ]
+    resources:
+      requests:
+        cpu: "0.01"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep8
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 80)); date +%s" ]
+    resources:
+      requests:
+        cpu: "0.01"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep9
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 90)); date +%s" ]
+    resources:
+      requests:
+        cpu: "0.01"
+        memory: "1Mi"
+      limits: {}
+  - name: sleep10
+    image: golang:1-bookworm
+    command: [ "/bin/sh" ]
+    args: [ "-c", "date +%s; sleep $((RANDOM % 100)); date +%s" ]
+    resources:
+      requests:
+        cpu: "0.01"
         memory: "1Mi"
       limits: {}
