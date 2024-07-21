@@ -177,6 +177,7 @@ func main() {
 		fmt.Println("error opening file:", err)
 		return
 	}
+	fileCreation := time.Now()
 	// pre generate the data array
 	data := make([]byte, *bytesPerSecond)
 	for i := 0; i < len(data); i++ {
@@ -218,6 +219,11 @@ func main() {
 		written += endOffset - startOffset
 
 		if written >= *fileMaxSize {
+			// compute actual time to write the data
+			elapsed := time.Since(fileCreation)
+			// print the actual write speed
+			fmt.Printf("actual write speed: %f bytes per second\n", float64(written)/elapsed.Seconds())
+
 			fileHandle.Close()
 			os.Remove(*file)
 			fileHandle, err = os.OpenFile(*file, os.O_CREATE|os.O_WRONLY, 0644)
@@ -226,6 +232,7 @@ func main() {
 				return
 			}
 			written = 0
+			fileCreation = time.Now()
 		}
 
 		latencies[cnt%*historyLength] = dt
