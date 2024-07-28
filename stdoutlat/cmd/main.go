@@ -9,12 +9,18 @@ import (
 	"os/signal"
 	"runtime"
 	"sort"
+	"sync/atomic"
 	"syscall"
 	"time"
 	"unicode/utf8"
 )
 
-var latencies []time.Duration
+type measurement struct {
+	t    time.Duration
+	lost int64
+}
+
+var latencies []measurement
 
 func handleSignals(cancel context.CancelFunc) {
 	channel := make(chan os.Signal, 1)
@@ -34,15 +40,7 @@ func roundLatency(d time.Duration) time.Duration {
 	return ((d + 500*time.Microsecond) / time.Millisecond) * time.Millisecond
 }
 
-func latencyReport(data []time.Duration, lost int) {
-	if len(data) == 0 {
-		fmt.Println("no latencies to report")
-		return
-	}
-
-	// create a copy of the data
-	latencies := make([]time.Duration, len(data))
-	copy(latencies, data)
+func asyncLatencyReport(latencies []time.Duration, lost int64) {
 	sort.Slice(latencies, func(i, j int) bool {
 		return latencies[i] < latencies[j]
 	})
@@ -140,6 +138,25 @@ func latencyReport(data []time.Duration, lost int) {
 	}
 }
 
+func latencyReport(data []measurement, sync bool) {
+	if len(data) == 0 {
+		fmt.Println("no latencies to report")
+		return
+	}
+
+	lost := int64(0)
+	latencies := make([]time.Duration, len(data))
+	for i, m := range data {
+		lost += m.lost
+		latencies[i] = m.t
+	}
+	if sync {
+		asyncLatencyReport(latencies, lost)
+		return
+	}
+	go asyncLatencyReport(latencies, lost)
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -161,14 +178,14 @@ func main() {
 	flag.Parse()
 
 	tickerTime := time.Duration(1e9 / *frequency)
-	latencies = make([]time.Duration, *historyLength)
+	latencies = make([]measurement, *historyLength)
 
 	lastLatencyTime := time.Now()
 	lastTickTime := fmt.Sprintf("(process startup: %s)", time.Now().Format(time.RFC3339Nano))
 	ticker := time.NewTicker(tickerTime)
 	lastTickLatency := time.Duration(0).String()
 	cnt := 0
-	lost := 0
+	var lost atomic.Int32
 
 	c := make(chan time.Time, 1)
 	go func() {
@@ -180,7 +197,7 @@ func main() {
 				select {
 				case c <- t:
 				default:
-					lost++
+					lost.Add(1)
 				}
 			}
 		}
@@ -191,9 +208,9 @@ func main() {
 			fmt.Println()
 			fmt.Println("last tick", lastTickTime, lastTickLatency, "cnt", cnt, "exiting")
 			if cnt < *historyLength {
-				latencyReport(latencies[:cnt], lost)
+				latencyReport(latencies[:cnt], true)
 			} else {
-				latencyReport(latencies, lost)
+				latencyReport(latencies, true)
 			}
 			return
 		case <-c:
@@ -205,14 +222,17 @@ func main() {
 		lastTickTime = start.Format(time.RFC3339Nano)
 		lastTickLatency = dt.String()
 
-		latencies[cnt%*historyLength] = dt
+		latencies[cnt%*historyLength] = measurement{
+			t:    dt,
+			lost: int64(lost.Swap(0)),
+		}
 		cnt++
 
 		if time.Since(lastLatencyTime) > time.Duration(*latencyInterval)*time.Second {
 			if cnt < *historyLength {
-				latencyReport(latencies[:cnt], lost)
+				latencyReport(latencies[:cnt], false)
 			} else {
-				latencyReport(latencies, lost)
+				latencyReport(latencies, false)
 			}
 			lastLatencyTime = time.Now()
 		}
