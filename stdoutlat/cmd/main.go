@@ -34,7 +34,7 @@ func roundLatency(d time.Duration) time.Duration {
 	return ((d + 500*time.Microsecond) / time.Millisecond) * time.Millisecond
 }
 
-func latencyReport(data []time.Duration) {
+func latencyReport(data []time.Duration, lost int) {
 	if len(data) == 0 {
 		fmt.Println("no latencies to report")
 		return
@@ -66,8 +66,8 @@ func latencyReport(data []time.Duration) {
 	if len(latencies) > 1 {
 		stddev = time.Duration(math.Sqrt(float64(variance) / float64(len(latencies))))
 	}
-	fmt.Printf("latency report (%d entries): min=%s p50=%s p90=%s p99=%s p999=%s max=%s avg=%s stddev=%s\n",
-		len(latencies), min, p50, p90, p99, p999, max, avg, stddev)
+	fmt.Printf("latency report (%d entries): min=%s p50=%s p90=%s p99=%s p999=%s max=%s avg=%s stddev=%s lost=%d\n",
+		len(latencies), min, p50, p90, p99, p999, max, avg, stddev, lost)
 
 	// 2^32 nanoseconds ~ 4 seconds
 	buckets := make([]int, 32)
@@ -160,7 +160,7 @@ func main() {
 	latencyInterval := flag.Int("latency.interval", 10, "the number of seconds between latency reports")
 	flag.Parse()
 
-	tickerTime := time.Duration(1 / *frequency * 1e9)
+	tickerTime := time.Duration(1e9 / *frequency)
 	latencies = make([]time.Duration, *historyLength)
 
 	lastLatencyTime := time.Now()
@@ -168,18 +168,35 @@ func main() {
 	ticker := time.NewTicker(tickerTime)
 	lastTickLatency := time.Duration(0).String()
 	cnt := 0
+	lost := 0
+
+	c := make(chan time.Time, 1)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case t := <-ticker.C:
+				select {
+				case c <- t:
+				default:
+					lost++
+				}
+			}
+		}
+	}()
 	for {
 		select {
 		case <-ctx.Done():
 			fmt.Println()
 			fmt.Println("last tick", lastTickTime, lastTickLatency, "cnt", cnt, "exiting")
 			if cnt < *historyLength {
-				latencyReport(latencies[:cnt])
+				latencyReport(latencies[:cnt], lost)
 			} else {
-				latencyReport(latencies)
+				latencyReport(latencies, lost)
 			}
 			return
-		case <-ticker.C:
+		case <-c:
 		}
 		start := time.Now()
 		fmt.Println("stdoutlat tick", cnt, "last tick", lastTickTime, lastTickLatency)
@@ -193,9 +210,9 @@ func main() {
 
 		if time.Since(lastLatencyTime) > time.Duration(*latencyInterval)*time.Second {
 			if cnt < *historyLength {
-				latencyReport(latencies[:cnt])
+				latencyReport(latencies[:cnt], lost)
 			} else {
-				latencyReport(latencies)
+				latencyReport(latencies, lost)
 			}
 			lastLatencyTime = time.Now()
 		}
